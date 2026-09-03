@@ -10,19 +10,10 @@ then commit and push this file as part of the `week01-setup` branch / PR.
 
 ```
 $ python --version
-Python 3.11.16
+(paste output here)
 
 $ python hello_env.py
-Your environment is alive.
-
-                Week 1 Environment Check
-┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Check          ┃ Result                               ┃
-┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ Python version │ 3.11.16                              │
-│ Executable     │ /home/arejith/mlops/.venv/bin/python │
-│ Platform       │ Linux                                │
-└────────────────┴──────────────────────────────────────┘
+(paste output here)
 ```
 
 ## Reflection (second PR)
