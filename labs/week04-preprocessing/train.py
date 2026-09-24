@@ -14,6 +14,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
+
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.decomposition import PCA
+
 
 # Resolve the CSV relative to this script's own location, not the caller's
 # working directory -- so this runs the same whether you launch it from the
@@ -22,6 +29,23 @@ from sklearn.metrics import accuracy_score
 DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "loan_applications.csv")
 NUMERIC_FEATURES = ["age", "annual_income", "months_employed", "loan_amount", "account_balance"]
 CATEGORICAL_FEATURES = ["employment_type", "home_ownership"]
+
+
+numeric_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler()),
+])
+ 
+categorical_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="most_frequent")),
+    ("encoder", OneHotEncoder(handle_unknown="ignore")),
+])
+
+preprocessor = ColumnTransformer([
+    ("num", numeric_pipeline, NUMERIC_FEATURES),
+    ("cat", categorical_pipeline, CATEGORICAL_FEATURES),
+])
+
 
 
 def load_data():
@@ -34,25 +58,48 @@ def main():
     y = df["defaulted"]
 
     # --- preprocessing ---
-    imputer = SimpleImputer(strategy="mean")
-    X[NUMERIC_FEATURES] = imputer.fit_transform(X[NUMERIC_FEATURES])
+   #imputer = SimpleImputer(strategy="mean")
+   #X[NUMERIC_FEATURES] = imputer.fit_transform(X[NUMERIC_FEATURES])
 
-    scaler = StandardScaler()
-    X[NUMERIC_FEATURES] = scaler.fit_transform(X[NUMERIC_FEATURES])
+   #scaler = StandardScaler()
+   #X[NUMERIC_FEATURES] = scaler.fit_transform(X[NUMERIC_FEATURES])
 
-    X = pd.get_dummies(X, columns=CATEGORICAL_FEATURES)
+   #X = pd.get_dummies(X, columns=CATEGORICAL_FEATURES)
 
     # --- split ---
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
+    pipe = Pipeline([
+    ("preprocess", preprocessor),
+    ("pca", PCA(n_components=5, random_state=42)),
+    ("clf", LogisticRegression(max_iter=1000)),
+    ])
 
+    param_grid = {
+    "pca__n_components": [3, 5, 8],
+    "clf__C": [0.1, 1, 10],
+    }
+    grid = GridSearchCV(pipe, param_grid, cv=5, scoring="accuracy")
+    grid.fit(X_train, y_train)
+
+    print("Best params:", grid.best_params_)
+    print("Best CV accuracy:", round(grid.best_score_, 4))
+    final_acc = accuracy_score(y_test, grid.best_estimator_.predict(X_test))
+    print("Final test accuracy:", round(final_acc, 4))
+
+    # pipe predict 
+    #ipe.fit(X_train, y_train)
+    #reds = pipe.predict(X_test)
+    #cc = accuracy_score(y_test, preds)
+    #rint(f"Test accuracy: {acc:.4f}")
+    #rint(pipe.named_steps["pca"].explained_variance_ratio_)
     # --- train + evaluate ---
-    model = LogisticRegression(max_iter=1000)
-    model.fit(X_train, y_train)
-    preds = model.predict(X_test)
-    acc = accuracy_score(y_test, preds)
-    print(f"Test accuracy: {acc:.4f}")
+    #odel = LogisticRegression(max_iter=1000)
+    #odel.fit(X_train, y_train)
+    #reds = model.predict(X_test)
+    #cc = accuracy_score(y_test, preds)
+    #rint(f"Test accuracy: {acc:.4f}")
 
 
 if __name__ == "__main__":
