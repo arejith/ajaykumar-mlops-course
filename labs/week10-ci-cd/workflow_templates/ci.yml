@@ -13,6 +13,13 @@ on:
   pull_request:
     paths:
       - "labs/week10-ci-cd/**"
+  push:
+    paths:
+      -"labs/week10-ci-cd/**"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Say hello        # a step that runs a command
+        run: echo hello
 
 jobs:
   test:
