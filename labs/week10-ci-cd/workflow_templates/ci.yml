@@ -15,11 +15,7 @@ on:
       - "labs/week10-ci-cd/**"
   push:
     paths:
-      -"labs/week10-ci-cd/**"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Say hello        # a step that runs a command
-        run: echo hello
+      - "labs/week10-ci-cd/**"
 
 jobs:
   test:
@@ -37,6 +33,17 @@ jobs:
       #     run: echo hello
       # YOUR CODE (gap 2): set up Python 3.12 with actions/setup-python@v5
       #   (add `cache: pip` and `cache-dependency-path: labs/week10-ci-cd/requirements.txt`)
+      - name: Set up python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: labs/week10-ci-cd/requirements.txt
+
       # YOUR CODE (gap 3): a step that installs the requirements (pip install -r requirements.txt)
+      - name: install requirements
+        run: pip install -r requirements.txt
       # YOUR CODE (gap 4): a step that runs the tests (pytest -q)
+      - name: tests
+        run: pytest -q
       #   (the working directory is already set once for the whole job, so do not repeat it)
